@@ -64,47 +64,42 @@
 # Big thanks for Iván Rodríguez Murillo's original OS X installer
 # https://github.com/iromu
 
-
-
-
-
 #### Let the script begin.
-
 
 # check if script has been run as root, it shouldn't be.
 if [[ $EUID -eq 0 ]]; then
-echo "This script should not need to be run as root.  Exiting"
-exit 1
+	echo "This script should not need to be run as root.  Exiting"
+	exit 1
 fi
 
 # function Declarations defined below...
 
 function lineBreak (){
-echo ""
+	echo ""
 }
 
 function echoGood () {
-#echos green text to stand out for succesful execution of a task
-#      ... hmmm default os x terminal is green text...
-INPUT_TEXT=$1
-printf "\e[0;32m${INPUT_TEXT}\e[0m\n"
+	#echos green text to stand out for succesful execution of a task
+	#      ... hmmm default os x terminal is green text...
+	INPUT_TEXT=$1
+	printf "\e[0;32m${INPUT_TEXT}\e[0m\n"
 }
 
 function echoBad () {
-#echos red text to stand out for a fail/warning
-INPUT_TEXT=$1
-printf "\e[0;31m${INPUT_TEXT}\e[0m\n"
+	#echos red text to stand out for a fail/warning
+	INPUT_TEXT=$1
+	printf "\e[0;31m${INPUT_TEXT}\e[0m\n"
 }
 
 function checkBrew() {
-#check if a particualar brew is installed - not used much as brew does this pretty well already.
-if which $1 >/dev/null;
-	then
-		echo "$1 is already installed, OK"
-	else
-		echo "$1 is not installed... brewing now."
-		brew install $1
-	fi
+	#check if a particualar brew is installed - not used much as brew does this pretty well already.
+	if which $1 >/dev/null;
+		then
+			echo "$1 is already installed, OK"
+		else
+			echo "$1 is not installed... brewing now."
+			brew install $1
+	fi 
 }
 
 function installBrews () {
@@ -116,6 +111,7 @@ function installBrews () {
 		brew install pango
 		brew link pixman
 		brew link fontconfig
+		brew uninstall --force gtk+ --ignore-dependencies
 		brew install https://raw.githubusercontent.com/Homebrew/homebrew/99126a50c96b3c832d72f4531c116271f543eded/Library/Formula/gtk+.rb
 		brew install glew
 		brew install gsl
@@ -126,20 +122,13 @@ function installBrews () {
 		brew install gcc49
 		brew install devil
 		brew install pkg-config
-#maybe....
-#		brew install mesalib-glw
-
-}
+	}
 
 function installXcodeSelect () {
 	echoGood "About to install xcode select"
 	echoBad "Hit Enter after it's installed"
 	xcode-select --install
 }
-
-
-############## int main.... lol
-
 
 echo ""
 echoGood "Dan Monaghan's VSFM and PMVS installer for OS X"
@@ -151,9 +140,8 @@ if which brew >/dev/null;
 	     echoGood "Great, you've got brew... Continuing"
 	else
 	     echoGood "No, Ok I will install brew... you'll have to enter your root password if Xcode command line tools are needed to complete."
-# old path	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+	# old path	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
 		ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
 fi
 
 
@@ -180,22 +168,20 @@ else
 	echoGood "Your version of XQuartz is $xquartz - perfect."
 fi
 
-
 lineBreak; echo "Ok, now you have to should have either...";lineBreak
 echo "1. Already had the correct version of XQuartz, so I'm continuing...";lineBreak
 echo "2. Had to have installed XQuartz and just logged out and back in...";lineBreak
 echo "Ready to continue the next installation of VSFM & PMVS   (press ENTER)";lineBreak
 read nothing
 
-
 echo "Installing Brew packages... this can take quite a long time"
 
 #############
+echo "installBrews";
 installBrews
 #############
 
 # installing VSFM Section
-
 function installVSFM () {
 
     VSFM_ZIP=VisualSFM_osx_64bit.zip
@@ -211,8 +197,8 @@ function installVSFM () {
 		unzip $VSFM_ZIP
     fi
 
-cd vsfm
-####### makefile Patches
+	cd vsfm
+	####### makefile Patches
 	echo "Changing VSFM GCC to Brews gcc-4.9"
 	S=$(echo CC = g++ -w | sed -e 's/\//\\\//g')
 	R=$(echo CC = g++-4.9 -w | sed -e 's/\//\\\//g')
@@ -232,34 +218,32 @@ cd vsfm
         exit
     fi
 
-cd ..
-
+	cd .. 
 }
 #############
+echo "installVSFM";
 installVSFM
 #############
 
-
-
-
-
 function installSiftGPU () {
 
-	SIFT_GPU_SRC=http://wwwx.cs.unc.edu/~ccwu/cgi-bin/siftgpu.cgi
+	SIFT_GPU_SRC=https://github.com/pitzer/SiftGPU/archive/master.zip
 	SIFT_GPU_ZIP=sift_gpu.zip
 
     if [[ ! -f $SIFT_GPU_ZIP ]]; then
         echoBad "SiftGPU Zip not present, downloading..."
         wget $SIFT_GPU_SRC -O $SIFT_GPU_ZIP
         unzip $SIFT_GPU_ZIP
+    	mv SiftGPU-master SiftGPU
     else
         echo "LIB_SIFT_GPU is present, skipping download and unzip. removing old dir to install so we don't have any conflicts"
         rm -fR SiftGPU
         unzip $SIFT_GPU_ZIP
+    	mv SiftGPU-master SiftGPU
     fi
 
-cd SiftGPU
-####### makefile Patches
+	cd SiftGPU
+	####### makefile Patches
 	# echo "Changing SiftGPU GCC to Brews gcc-4.9"
 	# S=$(echo CC = g++ | sed -e 's/\//\\\//g')
 	# R=$(echo CC = g++-4.9 -w | sed -e 's/\//\\\//g')
@@ -295,7 +279,7 @@ cd SiftGPU
 	R=$(echo | sed -e 's/\//\\\//g')
 	sed -i '' -e "s/${S}/${R}/" makefile
 
-make siftgpu
+	make siftgpu
 	if [[ $? -eq 0 ]]; then
         echoGood "libsiftgpu.so built... moving on"
     else
@@ -303,41 +287,27 @@ make siftgpu
         exit
 	fi
 
-cd ..
-
+	cd .. 
 }
 #############
+echo "installSiftGPU";
 installSiftGPU
 #############
 
-
-
-
-
 function installPBA () {
 
-LIB_PBA_SRC=http://grail.cs.washington.edu/projects/mcba/pba_v1.0.5.zip
-LIB_PBA_ZIP=pba_v1.0.5.zip
+    rm -rf pba
+	git clone https://github.com/cbalint13/pba.git
+	cd pba
 
-    if [[ ! -f $LIB_PBA_ZIP ]]; then
-        echo "VSFM Zip not present, downloading..."
-        wget $LIB_PBA_SRC -O $LIB_PBA_ZIP
-        unzip $LIB_PBA_ZIP
-    else
-        echo "LIB_PBA is present, skipping download and unzip, removing old dir to install so we don't have any conflicts"
-        rm -fR pba
-        unzip $LIB_PBA_ZIP
-    fi
-
-cd pba
-####### makefile_no_gpu Patches
+	####### makefile_no_gpu Patches
 	echo "Changing SiftGPU GCC to Brews gcc-4.9"
 	S=$(echo CC = g++ | sed -e 's/\//\\\//g')
 	R=$(echo CC = g++-4.9 -w | sed -e 's/\//\\\//g')
 	sed -i '' -e "s/${S}/${R}/" makefile_no_gpu
 
 	echo "Removing /usr/lib64 from makefile"
-	S=$(echo /usr/lib64 | sed -e 's/\//\\\//g')
+	S=$(echo -L/usr/lib64 | sed -e 's/\//\\\//g')
 	R=$(echo | sed -e 's/\//\\\//g')
 	sed -i '' -e "s/${S}/${R}/" makefile_no_gpu
 
@@ -352,12 +322,12 @@ cd pba
 	R=$(echo -L/usr/lib -L/usr/include/sys/ | sed -e 's/\//\\\//g')
 	sed -i '' -e "s/${S}/${R}/" makefile_no_gpu
 
-cp ../patches/SparseBundleCPU.patch src/pba/
-cd src/pba
-patch < SparseBundleCPU.patch
-cd ../..
-echoGood $PWD
-make -f makefile_no_gpu pba
+	cp ../patches/SparseBundleCPU.patch src/pba/
+	cd src/pba
+	patch < SparseBundleCPU.patch
+	cd ../..
+	echoGood $PWD
+	make -f makefile_no_gpu pba
 	if [[ $? -eq 0 ]]; then
 			echoGood "libpba.so built... moving on"
 		else
@@ -365,19 +335,17 @@ make -f makefile_no_gpu pba
 		exit
 	fi
 
-cd ..
-
+	cd ..
 }
 #############
+echo "installPBA";
 installPBA
 #############
 
-
-
 function installPMVS () {
 
-PMVS_ZIP=PMVS_pmoulonGit.zip
-PMVS_SRC=https://github.com/pmoulon/CMVS-PMVS/archive/master.zip
+	PMVS_ZIP=PMVS_pmoulonGit.zip
+	PMVS_SRC=https://github.com/pmoulon/CMVS-PMVS/archive/master.zip
 
     if [[ ! -f $PMVS_ZIP ]]; then
         echoBad "PMVS Zip not present, downloading..."
@@ -389,10 +357,10 @@ PMVS_SRC=https://github.com/pmoulon/CMVS-PMVS/archive/master.zip
         unzip $PMVS_ZIP
     fi
 
-cd CMVS-PMVS-master/program
-patch base/stann/dpoint.hpp < ../../patches/dpoint_err.patch
+	cd CMVS-PMVS-master/program
+	patch base/stann/dpoint.hpp < ../../patches/dpoint_err.patch
 
-####### CMakeLists.txt Patches
+	####### CMakeLists.txt Patches
 	echo "Adding set CMAKE_EXE_LINKER_FLAGS -static-libgcc -static-libstdc++ to cmake flags"
 	cat ../../patches/cflag_var > temp
 	cat CMakeLists.txt >> temp
@@ -410,40 +378,34 @@ patch base/stann/dpoint.hpp < ../../patches/dpoint_err.patch
             exit
 	fi
 
-cd ../../..
-echoGood $PWD
-
+	cd ../../..
+	echoGood $PWD
 }
 #############
+echo "installPMVS";
 installPMVS
 #############
 
-
-
-
 function makeVSFMdir () {
-
-cp pba/bin/libpba_no_gpu.so vsfm/bin/libpba.so
-cp SiftGPU/bin/libsiftgpu.so vsfm/bin/
-cp CMVS-PMVS-master/program/build/main/pmvs2 vsfm/bin
-cp CMVS-PMVS-master/program/build/main/genOption vsfm/bin
-cp CMVS-PMVS-master/program/build/main/cmvs vsfm/bin
-}
+	cp pba/bin/libpba_no_gpu.so vsfm/bin/libpba.so
+	cp SiftGPU/bin/libsiftgpu.so vsfm/bin/
+	cp CMVS-PMVS-master/program/build/main/pmvs2 vsfm/bin
+	cp CMVS-PMVS-master/program/build/main/genOption vsfm/bin
+	cp CMVS-PMVS-master/program/build/main/cmvs vsfm/bin}
 #############
+echo "makeVSFMdir";
 makeVSFMdir
 #############
 if [[ $? -eq 0 ]]; then
-			echoGood "Success!  Opening VSFM dir"
-            echoBad "To add to your PATH, add the lines below to your ~/.bash_profile file."
-            echoBad "export PATH=$PWD/vsfm/bin:\$PATH"
-			echoBad "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$PWD"
-            echoGood "Make sure you ammend that that path if you move the directory."
-            open vsfm/bin/
-		else
-			echoBad "Failure.  End of script"
-		exit
-	fi
-
-
+	echoGood "Success!  Opening VSFM dir"
+    echoBad "To add to your PATH, add the lines below to your ~/.bash_profile file."
+    echoBad "export PATH=$PWD/vsfm/bin:\$PATH"
+	echoBad "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$PWD"
+    echoGood "Make sure you ammend that that path if you move the directory."
+    open vsfm/bin/
+else
+	echoBad "Failure.  End of script"
+	exit
+fi
 
 ### END OF SCRIPT

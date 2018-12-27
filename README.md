@@ -1,13 +1,15 @@
-VisualSFM_OS_X_Mojave_Installer
+VisualSFM_OS_X_Installer
 ==================================
 
-VisualSFM installer script for OS X Mojave
+VisualSFM installer script for OS X
+
+Current version this works for `Mojave 10.14.2`
 
 ## install xcode to allow compiling properly
 
 https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave#comment93215344_52530212
 
-- download the Command Line Tools package for (XCode 10.1 on Mojave 10.14)[https://developer.apple.com/download/more/]
+- download the Command Line Tools package for (XCode 10.1 on Mojave 10.14.2)[https://developer.apple.com/download/more/]
 - install
 - open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
 - install
@@ -16,11 +18,11 @@ https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-aft
 
 1. Get the installer from the github page where it says "Download ZIP"... since you are here=]
 
-2. Go to your Downloads folder and you should see a directory called "VisualSFM_OS_X_Mojave_Installer-master"
+2. Go to your Downloads folder and you should see a directory called "VisualSFM_OS_X_Installer-master"
 
 3. In Terminal, cd into that directory...  e.g.:  
 
-$ cd ~/Downloads/VisualSFM_OS_X_Mojave_Installer-master/
+$ cd ~/Downloads/VisualSFM_OS_X_Installer-master/
 
 4. Execute the script ( no need to sudo )
 

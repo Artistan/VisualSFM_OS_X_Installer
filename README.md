@@ -1,22 +1,30 @@
-VisualSFM_OS_X_Mavericks_Installer
+VisualSFM_OS_X_Mojave_Installer
 ==================================
 
-VisualSFM installer script for OS X Mavericks
+VisualSFM installer script for OS X Mojave
 
+## install xcode to allow compiling properly
 
-Here's a quick guide on how to use the installer.
+https://stackoverflow.com/questions/52509602/cant-compile-c-program-on-a-mac-after-upgrade-to-mojave#comment93215344_52530212
+
+- download the Command Line Tools package for (XCode 10.1 on Mojave 10.14)[https://developer.apple.com/download/more/]
+- install
+- open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+- install
+
+## install using script
 
 1. Get the installer from the github page where it says "Download ZIP"... since you are here=]
 
-2. Go to your Downloads folder and you should see a directory called "VisualSFM_OS_X_Mavericks_Installer-master"
+2. Go to your Downloads folder and you should see a directory called "VisualSFM_OS_X_Mojave_Installer-master"
 
 3. In Terminal, cd into that directory...  e.g.:  
 
-$ cd ~/Downloads/VisualSFM_OS_X_Mavericks_Installer-master/
+$ cd ~/Downloads/VisualSFM_OS_X_Mojave_Installer-master/
 
 4. Execute the script ( no need to sudo )
 
-$ sh vsfm_os_x_installer_mavericks.sh
+$ sh vsfm_os_x_installer_mojave.sh
 
 5.  The script goes on to check that you have brew installed, and the Xcode command line tools (which requires an admin password to install).  The script also checks for the precise version of XQuartz 2.7.6 at that point (I'm sure we can relax on that later in the installer).  If you have the wrong version of XQuartz, 2.7.6 is downloaded and you are prompted to install it.  You then have to log in and out again to make sure you can continue.
 
@@ -35,5 +43,10 @@ $ sh vsfm_os_x_installer_mavericks.sh
 12... stay tuned for updates, but that's pretty much the procedure in a nutshell.
 
 Cheers,
+Charles Peterson 
+https://github.com/Artistan
+
+Original Cheers from Mavericks install ...
+
 Dan Monaghan
 www.luckybulldozer.com

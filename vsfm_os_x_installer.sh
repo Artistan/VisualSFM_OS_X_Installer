@@ -103,9 +103,14 @@ function checkBrew() {
 }
 
 function installBrews () {
+
+		#brew install wget
+		#brew cask install xquartz
 		brew install jpeg
 		brew install gdk-pixbuf --cc=llvm-gcc
-		brew install cairo --with-x11
+		brew uninstall --force cairo --ignore-dependencies
+		brew install cairo
+
         brew install freetype
 		brew link freetype
 		brew install pango
@@ -113,6 +118,7 @@ function installBrews () {
 		brew link fontconfig
 		brew uninstall --force gtk+ --ignore-dependencies
 		brew install https://raw.githubusercontent.com/Homebrew/homebrew/99126a50c96b3c832d72f4531c116271f543eded/Library/Formula/gtk+.rb
+		#brew install gtk+
 		brew install glew
 		brew install gsl
 		brew install boost
@@ -146,12 +152,31 @@ fi
 
 
 checkBrew wget
+brew install --with-toolchain llvm
+
+export LDFLAGS="-L/usr/local/opt/llvm/lib"
+export CPPFLAGS="-I/usr/local/opt/llvm/include"
+
 #checkBrew function defined at bottom
 
 #instal xcode select
 installXcodeSelect
 
 # check to see if we have the right XQuartz....
+echo "-------------- MANUAL UPDATE --------------"
+echo "brew edit cairo"
+# echo "replace with https://gist.github.com/zhiyzuo/a489ffdcc5da87f28f8589a55aa206dd#gistcomment-2593368"
+# echo "maybe automate this ... https://docs.brew.sh/Tips-N'-Tricks"
+# echo "replace /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/cairo.rb"
+# echo "https://docs.brew.sh/FAQ"
+echo "update these with YES"
+echo "--enable-xcb=yes",
+echo "--enable-xlib=yes",
+echo "--enable-xlib-xrender=yes"
+echo "brew pin cairo # this will prevent updates to your modifications."
+echo "-------------- AFTER UPDATE HIT ENTER HERE --------------"
+read nothing
+
 
 echo "Checking we have the right version of XQuartz"
 xquartz="2.7.8"
@@ -210,7 +235,7 @@ function installVSFM () {
 	sed -i '' -e "s/${S}/${R}/" makefile
 
 	echoGood "About to make..."
-	make -f makefile
+	make -f makefile 2> makeit.log
     if [[ $? -eq 0 ]]; then
         echoGood "VSFM application built... moving on"
     else
@@ -279,7 +304,7 @@ function installSiftGPU () {
 	R=$(echo | sed -e 's/\//\\\//g')
 	sed -i '' -e "s/${S}/${R}/" makefile
 
-	make siftgpu
+	make siftgpu 2> makeit.log
 	if [[ $? -eq 0 ]]; then
         echoGood "libsiftgpu.so built... moving on"
     else
@@ -327,7 +352,7 @@ function installPBA () {
 	patch < SparseBundleCPU.patch
 	cd ../..
 	echoGood $PWD
-	make -f makefile_no_gpu pba
+	make -f makefile_no_gpu pba 2> makeit.log
 	if [[ $? -eq 0 ]]; then
 			echoGood "libpba.so built... moving on"
 		else
@@ -358,10 +383,21 @@ function installPMVS () {
     fi
 
 	cd CMVS-PMVS-master/program
+
+	echo "Removing -static-libgcc from program files"
+	S=$(echo  -static-libgcc | sed -e 's/\//\\\//g')
+	R=$(echo | sed -e 's/\//\\\//g')
+	sed -i '' -e "s/${S}/${R}/" CMakeLists.txt
+	sed -i '' -e "s/${S}/${R}/" build/main/CMakeFiles/pmvs2.dir/link.txt
+	sed -i '' -e "s/${S}/${R}/" build/main/CMakeFiles/genOption.dir/link.txt
+	sed -i '' -e "s/${S}/${R}/" build/main/CMakeFiles/cmvs.dir/link.txt
+
 	patch base/stann/dpoint.hpp < ../../patches/dpoint_err.patch
 
 	####### CMakeLists.txt Patches
-	echo "Adding set CMAKE_EXE_LINKER_FLAGS -static-libgcc -static-libstdc++ to cmake flags"
+    # Using the linker option -static-libgcc results in an error on OSX. The option -static-libstdc++ is unused. Therefore
+    # these options have been excluded from OSX
+	echo "Patches for making CMVS-PMVS"
 	cat ../../patches/cflag_var > temp
 	cat CMakeLists.txt >> temp
 	mv CMakeLists.txt OLD_CMakeLists
@@ -370,7 +406,7 @@ function installPMVS () {
 	cd build
 	echoGood $PWD
 	cmake . ..
-	make
+	make 2> makeit.log
 	if [[ $? -eq 0 ]]; then
 			echoGood "CMVS & PMVS built... moving on"
     else
@@ -391,10 +427,12 @@ function makeVSFMdir () {
 	cp SiftGPU/bin/libsiftgpu.so vsfm/bin/
 	cp CMVS-PMVS-master/program/build/main/pmvs2 vsfm/bin
 	cp CMVS-PMVS-master/program/build/main/genOption vsfm/bin
-	cp CMVS-PMVS-master/program/build/main/cmvs vsfm/bin}
+	cp CMVS-PMVS-master/program/build/main/cmvs vsfm/bin
+}
 #############
 echo "makeVSFMdir";
 makeVSFMdir
+
 #############
 if [[ $? -eq 0 ]]; then
 	echoGood "Success!  Opening VSFM dir"
